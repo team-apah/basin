@@ -1,10 +1,12 @@
 # basin
-![Input](https://github.com/team-apah/basin/blob/master/results/Grand_canyon.png)
+This repository contains material and code related to my personal reasearch
+into methods for delineating drainage basins for use in the teams final
+product.
 
-![Result](https://github.com/team-apah/basin/blob/master/results/Grand_canyon_result2.png)
+##[Bruteforce](bruteforce)
+A simple naive algorithm akin to flood fill.
 
-Bruteforce script dependency:
-`pip install numpy`
+##Other
 
 Dependencies intended for later use:
 
