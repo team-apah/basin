@@ -8,19 +8,23 @@
  * http://www.gdal.org/gdal_tutorial.html
  */
 
+// C Standard Library
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
+#include <cfloat>
 #include <cmath>
-
-#include <iostream>
 
 // GDAL
 #include <gdal_priv.h>
 #include <cpl_conv.h> // for CPLMalloc()
 
+/*
+ * DEM Types
+ */
 typedef uint32_t dem_index_t;
 typedef float dem_point_t;
+#define DEM_POINT_MAX FLT_MAX
 
 /*
  * Implementation of D8 Algorithm (O'Callaghan and Mark, 1984)
@@ -48,23 +52,66 @@ const int D8_ITER_ROW[8] = {
     -1, 0, 1, 0, -1, 1, 1, -1
 };
 
+void dem_print(dem_point_t * dem, dem_index_t w, dem_index_t h) {
+    for (dem_index_t x = 0; x < w; x++){
+        for (dem_index_t y = 0; y < h; y++){
+            printf("%3.2f,", dem[w*y+x]);
+        }
+        printf("\n");
+    }
+}
+
+void dem_fill(dem_point_t * dem, dem_index_t w, dem_index_t h) {
+    dem_point_t current; // Value of current point
+    dem_index_t current_i; // Index of current point
+    dem_point_t neighbor; // Value of neighbor being inspected
+
+    // Current minimum index and value among the neighbors
+    dem_point_t min;
+
+    // Fill all points except edges
+    dem_index_t _w = w - 1;
+    dem_index_t _h = h - 1;
+    for (dem_index_t x = 1; x < _w; x++){
+        for (dem_index_t y = 1; y < _h; y++){
+            current_i = w * y + x;
+            current = dem[current_i];
+            min = DEM_POINT_MAX;
+
+            // Find the minimum
+            for (int v = 0; v < 8; v++) {
+                neighbor = dem[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
+                if (neighbor < min) {
+                    min = neighbor;
+                }
+            }
+
+            // Fill it if it's a pit (the minimum of it and it's neighbors)
+            if (current < min) {
+                printf("Fill @ <%lu, %lu>\n", x, y);
+                dem[current_i] = min;
+            }
+        }
+    }
+}
+
 void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
     dem_index_t size = w * h;
 
     // Flow Direction Matrix (DDIRN) Init
     int * dir = (int *) malloc(sizeof(int) * size);
 
-    // Square Root Matrix Init
-    dem_point_t * sqrt = (dem_point_t *) malloc(sizeof(dem_point_t) * size);
-    if (dir == NULL || sqrt == NULL) {
-        fprintf(stderr, "Memory Error in D8!\n");
-        exit(EXIT_FAILURE);
-    }
+    //// Square Root Matrix Init
+    //dem_point_t * sqrt = (dem_point_t *) malloc(sizeof(dem_point_t) * size);
+    //if (dir == NULL || sqrt == NULL) {
+    //    fprintf(stderr, "Memory Error in D8!\n");
+    //    exit(EXIT_FAILURE);
+    //}
 
-    // Fill Squre Root Matrix
-    for (dem_index_t i = 0; i < size; i++){
-        sqrt[i] = dem[i] * M_SQRT1_2;
-    }
+    //// Fill Squre Root Matrix
+    //for (dem_index_t i = 0; i < size; i++){
+    //    sqrt[i] = dem[i] * M_SQRT1_2;
+    //}
 
     // Need to avoid edge
     dem_index_t _w = w - 1;
@@ -87,7 +134,8 @@ void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
                 }
             }
             for (int v = 4; v < 8; v++) {
-                cur = sqrt[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
+                //cur = sqrt[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
+                cur = dem[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
                 if (cur < min) {
                     min = cur;
                     min_i = v;
@@ -106,34 +154,34 @@ void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
         for (dem_index_t y = 1; y < _h; y++){
             switch (dir[w * y + x]) {
                 case D8_N:
-                    printf(" N  ");
+                    printf(" ↑");
                     break;
                 case D8_E:
-                    printf(" E  ");
+                    printf(" →");
                     break;
                 case D8_NE:
-                    printf(" NE ");
+                    printf(" ↗");
                     break;
                 case D8_SE:
-                    printf(" SE ");
+                    printf(" ↘");
                     break;
                 case D8_SW:
-                    printf(" SW ");
+                    printf(" ↙");
                     break;
                 case D8_NW:
-                    printf(" NW ");
+                    printf(" ↖");
                     break;
                 case D8_W:
-                    printf(" W  ");
+                    printf(" ←");
                     break;
                 case D8_S:
-                    printf(" S  ");
+                    printf(" ↓");
                     break;
-                case D8_PIT:
-                    printf(" <> ");
+                case D8_PIT: 
+                    printf(" *");
                     break;
                 default:
-                    printf(" ?? ");
+                    printf(" ?");
             }
         }
         printf("\n");
@@ -226,7 +274,9 @@ int main(int argc, char *argv[]) {
     );
 
     // Process the data
+    dem_fill(matrix, w, h);
     d8(matrix, w, h);
+    dem_print(matrix, w, h);
     
     return EXIT_SUCCESS;
 }
