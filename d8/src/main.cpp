@@ -88,7 +88,7 @@ void dem_fill(dem_point_t * dem, dem_index_t w, dem_index_t h) {
 
             // Fill it if it's a pit (the minimum of it and it's neighbors)
             if (current < min) {
-                printf("Fill @ <%lu, %lu>, %f to %f\n", x, y, current, min);
+                //printf("Fill @ <%lu, %lu>, %f to %f\n", x, y, current, min);
                 dem[current_i] = min;
             }
         }
@@ -255,8 +255,8 @@ int main(int argc, char *argv[]) {
     dem_point_t * matrix;
     dem_index_t x = 345;
     dem_index_t y = 400;
-    dem_index_t w = 20;
-    dem_index_t h = 20;
+    dem_index_t w = 40;
+    dem_index_t h = 40;
     matrix = (dem_point_t *) CPLMalloc(sizeof(float) * w * h);
 
     // Documentation for this method is located here:
@@ -276,7 +276,6 @@ int main(int argc, char *argv[]) {
     matrix[10*w + 10] = 200.0;
     dem_fill(matrix, w, h);
     d8(matrix, w, h);
-    dem_print(matrix, w, h);
     
     return EXIT_SUCCESS;
 }
