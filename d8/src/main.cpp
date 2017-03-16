@@ -44,6 +44,10 @@ const int D8_VALUES[9] = {
     D8_N, D8_E, D8_S, D8_W, D8_NE, D8_SE, D8_SW, D8_NW
 };
 
+const int D8_VALUES_OPPOSITE[9] = {
+    D8_S, D8_W, D8_N, D8_E, D8_SW, D8_NW, D8_SE, D8_SE
+};
+
 const int D8_ITER_COL[8] = {
     0, 1, 0, -1, 1, 1, -1, -1
 };
@@ -109,8 +113,6 @@ void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
     dem_point_t point, max, cur;
     dem_index_t i, max_i;
 
-    int level_neigbors;
-
     dem_point_t drops[8];
     for (dem_index_t x = 1; x < _w; x++){
         for (dem_index_t y = 1; y < _h; y++){
@@ -122,9 +124,9 @@ void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
                 cur = dem[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
                 drops[v] = point - cur;
             }
-            for (int v = 4; v < 8; v++) {
+            for (int v = 4; v < 8; v++) { // Diagonal neigbors (NE, NW, SE, SW)
                 cur = dem[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
-                drops[v] = (point - cur)/M_SQRT2;
+                drops[v] = (point - cur)/M_SQRT2; // Weight by distance
             }
 
             // Get larget weighted drop in elevation
@@ -153,28 +155,28 @@ void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
         for (dem_index_t y = 1; y < _h; y++){
             switch (dir[w * y + x]) {
                 case D8_N:
-                    printf(" ↑");
+                    printf(" ⇑");
                     break;
                 case D8_E:
-                    printf(" →");
+                    printf(" ⇒");
                     break;
                 case D8_NE:
-                    printf(" ↗");
+                    printf(" ⇗");
                     break;
                 case D8_SE:
-                    printf(" ↘");
+                    printf(" ⇘");
                     break;
                 case D8_SW:
-                    printf(" ↙");
+                    printf(" ⇙");
                     break;
                 case D8_NW:
-                    printf(" ↖");
+                    printf(" ⇖");
                     break;
                 case D8_W:
-                    printf(" ←");
+                    printf(" ⇐");
                     break;
                 case D8_S:
-                    printf(" ↓");
+                    printf(" ⇓");
                     break;
                 case D8_PIT: 
                     printf(" *");
@@ -184,6 +186,36 @@ void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
             }
         }
         printf("\n");
+    }
+
+    // Calculate Flow Accumulation
+
+    // Flow Accumulation
+    uint8_t * acc = (uint8_t *) malloc(sizeof(uint8_t) * size);
+    uint8_t neighbor;
+    
+    _w--;
+    _h--;
+    for (dem_index_t x = 2; x < _w; x++){
+        for (dem_index_t y = 2; y < _h; y++){
+            i = w * y + x;
+            acc[i] = 0;
+            for (int v = 0; v < 8; v++) {
+                neighbor = dir[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
+                if (neighbor == D8_VALUES_OPPOSITE[v]) {
+                    acc[i] = acc[i] + 1;
+                }
+            }
+        }
+    }
+
+    // Print Acc
+    printf("Accumulation Flow\n");
+    for (dem_index_t x = 2; x < _w; x++){
+        for (dem_index_t y = 2; y < _h; y++){
+            printf("| %u ", acc[w*y+x]);
+        }
+        printf("|\n");
     }
 }
 
@@ -255,8 +287,8 @@ int main(int argc, char *argv[]) {
     dem_point_t * matrix;
     dem_index_t x = 345;
     dem_index_t y = 400;
-    dem_index_t w = 40;
-    dem_index_t h = 40;
+    dem_index_t w = 20;
+    dem_index_t h = 20;
     matrix = (dem_point_t *) CPLMalloc(sizeof(float) * w * h);
 
     // Documentation for this method is located here:
