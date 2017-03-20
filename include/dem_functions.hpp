@@ -2,7 +2,7 @@
  * Team Apah
  * SIUE Computer Science Senior Project
  *
- * dem_functions.cpp
+ * dem_functions.hpp
  *
  * Contains functions for manipulating DEMs and finding
  * flow values.

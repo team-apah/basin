@@ -2,7 +2,7 @@
  * Team Apah
  * SIUE Computer Science Senior Project
  *
- * dem.cpp
+ * dem.hpp
  *
  * Contains basic DEM types and const values
  */
