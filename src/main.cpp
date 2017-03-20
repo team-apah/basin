@@ -1,224 +1,32 @@
 /*
  * Team Apah
  * SIUE Computer Science Senior Project
- * 
- * D8 Implementing Experiement using GDAL
  *
- * Almost all of main is from GDAL's tutorial on reading data:
- * http://www.gdal.org/gdal_tutorial.html
+ * main.cpp
+ */
+
+/*
+ * Headers
  */
 
 // C Standard Library
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
-#include <cfloat>
 #include <cmath>
 
 // GDAL
 #include <gdal_priv.h>
 #include <cpl_conv.h> // for CPLMalloc()
 
-/*
- * DEM Types
- */
-typedef uint32_t dem_index_t;
-typedef float dem_point_t;
-#define DEM_POINT_MAX FLT_MAX
+// Local
+#include <dem.hpp>
+#include <dem_functions.hpp>
 
 /*
- * Implementation of D8 Algorithm (O'Callaghan and Mark, 1984)
+ * Almost all of main is from GDAL's tutorial on reading data:
+ * http://www.gdal.org/gdal_tutorial.html
  */
-
-#define D8_PIT 0
-#define D8_NE 1
-#define D8_E 2
-#define D8_SE 4
-#define D8_S 8
-#define D8_SW 16
-#define D8_W 32
-#define D8_NW 64
-#define D8_N 128
-
-const int D8_VALUES[9] = {
-    D8_N, D8_E, D8_S, D8_W, D8_NE, D8_SE, D8_SW, D8_NW
-};
-
-const int D8_VALUES_OPPOSITE[9] = {
-    D8_S, D8_W, D8_N, D8_E, D8_SW, D8_NW, D8_SE, D8_SE
-};
-
-const int D8_ITER_COL[8] = {
-    0, 1, 0, -1, 1, 1, -1, -1
-};
-
-const int D8_ITER_ROW[8] = {
-    -1, 0, 1, 0, -1, 1, 1, -1
-};
-
-void dem_print(dem_point_t * dem, dem_index_t w, dem_index_t h) {
-    for (dem_index_t x = 0; x < w; x++){
-        for (dem_index_t y = 0; y < h; y++){
-            printf("%3.2f,", dem[w*y+x]);
-        }
-        printf("\n");
-    }
-}
-
-void dem_fill(dem_point_t * dem, dem_index_t w, dem_index_t h) {
-    dem_point_t current; // Value of current point
-    dem_index_t current_i; // Index of current point
-    dem_point_t neighbor; // Value of neighbor being inspected
-
-    // Current minimum index and value among the neighbors
-    dem_point_t min;
-
-    // Fill all points except edges
-    dem_index_t _w = w - 1;
-    dem_index_t _h = h - 1;
-    for (dem_index_t x = 1; x < _w; x++){
-        for (dem_index_t y = 1; y < _h; y++){
-            current_i = w * y + x;
-            current = dem[current_i];
-            min = DEM_POINT_MAX;
-
-            // Find the minimum
-            for (int v = 0; v < 8; v++) {
-                neighbor = dem[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
-                if (neighbor < min) {
-                    min = neighbor;
-                }
-            }
-
-            // Fill it if it's a pit (the minimum of it and it's neighbors)
-            if (current < min) {
-                //printf("Fill @ <%lu, %lu>, %f to %f\n", x, y, current, min);
-                dem[current_i] = min;
-            }
-        }
-    }
-}
-
-void d8(dem_point_t * dem, dem_index_t w, dem_index_t h) {
-    dem_index_t size = w * h;
-
-    // First we need to get the flows for each cell
-
-    // Flow Direction Matrix (DDIRN) Init
-    int * dir = (int *) malloc(sizeof(int) * size);
-
-    // Need to avoid edge
-    dem_index_t _w = w - 1;
-    dem_index_t _h = h - 1;
-    dem_point_t point, max, cur;
-    dem_index_t i, max_i;
-
-    dem_point_t drops[8];
-    for (dem_index_t x = 1; x < _w; x++){
-        for (dem_index_t y = 1; y < _h; y++){
-            i = w * y + x;
-            point = dem[i];
-
-            // Get drops
-            for (int v = 0; v < 4; v++) {
-                cur = dem[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
-                drops[v] = point - cur;
-            }
-            for (int v = 4; v < 8; v++) { // Diagonal neigbors (NE, NW, SE, SW)
-                cur = dem[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
-                drops[v] = (point - cur)/M_SQRT2; // Weight by distance
-            }
-
-            // Get larget weighted drop in elevation
-            max = drops[0];
-            max_i = 0;
-            for (int v = 1; v < 8; v++) {
-                cur = drops[v];
-                if (cur > max) {
-                    max = cur;
-                    max_i = v;
-                } else if (cur == max) {
-                    max_i = v;
-                }
-            }
-
-            if (max < 0) { // undifined direction (3a)
-                dir[i] = -1;
-            } else if (max >= 0) { // 
-                dir[i] = D8_VALUES[max_i];
-            }
-        }
-    }
-
-    // Print Flow directions
-    for (dem_index_t x = 1; x < _w; x++){
-        for (dem_index_t y = 1; y < _h; y++){
-            switch (dir[w * y + x]) {
-                case D8_N:
-                    printf(" ⇑");
-                    break;
-                case D8_E:
-                    printf(" ⇒");
-                    break;
-                case D8_NE:
-                    printf(" ⇗");
-                    break;
-                case D8_SE:
-                    printf(" ⇘");
-                    break;
-                case D8_SW:
-                    printf(" ⇙");
-                    break;
-                case D8_NW:
-                    printf(" ⇖");
-                    break;
-                case D8_W:
-                    printf(" ⇐");
-                    break;
-                case D8_S:
-                    printf(" ⇓");
-                    break;
-                case D8_PIT: 
-                    printf(" *");
-                    break;
-                default:
-                    printf(" ?");
-            }
-        }
-        printf("\n");
-    }
-
-    // Calculate Flow Accumulation
-
-    // Flow Accumulation
-    uint8_t * acc = (uint8_t *) malloc(sizeof(uint8_t) * size);
-    uint8_t neighbor;
-    
-    _w--;
-    _h--;
-    for (dem_index_t x = 2; x < _w; x++){
-        for (dem_index_t y = 2; y < _h; y++){
-            i = w * y + x;
-            acc[i] = 0;
-            for (int v = 0; v < 8; v++) {
-                neighbor = dir[w * (y + D8_ITER_ROW[v]) + (x + D8_ITER_COL[v])];
-                if (neighbor == D8_VALUES_OPPOSITE[v]) {
-                    acc[i] = acc[i] + 1;
-                }
-            }
-        }
-    }
-
-    // Print Acc
-    printf("Accumulation Flow\n");
-    for (dem_index_t x = 2; x < _w; x++){
-        for (dem_index_t y = 2; y < _h; y++){
-            printf("| %u ", acc[w*y+x]);
-        }
-        printf("|\n");
-    }
-}
-
 int main(int argc, char *argv[]) {
     // Open File
     GDALDataset *poDataset;
@@ -305,7 +113,6 @@ int main(int argc, char *argv[]) {
     );
 
     // Process the data
-    matrix[10*w + 10] = 200.0;
     dem_fill(matrix, w, h);
     d8(matrix, w, h);
     

@@ -14,6 +14,10 @@ include_directories("include")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 add_executable(${EXECUTABLE_NAME}
     src/main.cpp
+    src/dem_fill.cpp
+    src/d8.cpp
+    src/flow.cpp
+    src/dem_misc.cpp
 )
 install(TARGETS ${EXECUTABLE_NAME} RUNTIME DESTINATION bin)
 
