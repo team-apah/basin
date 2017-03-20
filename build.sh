@@ -1,6 +1,6 @@
 #!/bin/bash
 
-execute_path="./build/bin/basin_d8"
+execute_path="./build/bin/cahokia"
 # Default options
 force_option=false
 run_option=false
