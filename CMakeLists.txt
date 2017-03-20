@@ -8,7 +8,7 @@ project(BASIN_D8)
 set(CMAKE_CXX_STANDARD 11)
 
 # Main Program
-set(EXECUTABLE_NAME "basin_d8")
+set(EXECUTABLE_NAME "cahokia")
 include_directories("include")
 #include_directories(${PROJECT_BINARY_DIR}/include)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
