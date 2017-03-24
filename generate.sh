@@ -14,6 +14,9 @@ REFERENCE='epsg:4269' # aka NAD 83
 
 # Create Data Directory and cd into it
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+HOME_NAME='data'
+export HOME="$SCRIPT_DIR/$HOME_NAME"
+mkdir -p $HOME; cd $HOME
 
 # Log
 if [ "$1" != "--gui" ]
@@ -23,10 +26,6 @@ then
     date
     FILES=$(find $1 -name '*.img' | xargs realpath)
 fi
-
-HOME_NAME='data'
-export HOME="$SCRIPT_DIR/$HOME_NAME"
-mkdir -p $HOME; cd $HOME
 
 export GISDBASE="$HOME/grassdata"
 export GISRC="$HOME/.grassrc"
@@ -155,12 +154,12 @@ r.colors\
 
 date
 echo " ========== EXPORT =========="
-r.out.gdal input=wotus output=$HOME/wotus.gtiff
+r.out.gdal input=wotus output=wotus.gtiff
 
 date
 echo " ========== TILES GENERATION =========="
-gdal_translate -of vrt -expand rgba $HOME/wotus.gtiff $HOME/temp.vrt
-gdal2tiles.py -v -w leaflet $HOME/temp.vrt $HOME/$TILE_DIR
+gdal_translate -of vrt -expand rgba wotus.gtiff temp.vrt
+gdal2tiles.py -v -w leaflet temp.vrt $TILE_DIR
 
 echo " ========== DONE =========="
 date
