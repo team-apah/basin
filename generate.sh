@@ -16,7 +16,7 @@ REFERENCE='epsg:4269' # aka NAD 83
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HOME_NAME='data'
 export HOME="$SCRIPT_DIR/$HOME_NAME"
-mkdir -p $HOME; cd $HOME
+mkdir -p $HOME
 
 # Log
 if [ "$1" != "--gui" ]
@@ -24,8 +24,10 @@ then
     exec > >(tee -i logs/$(date +"%Y_%m_%d_%H_%M_%S")'.log')
     exec 2>&1
     date
-    FILES=$(find $1 -name '*.img' | xargs realpath)
+    FILES=$(find "$(realpath $1)" -name '*.img')
 fi
+
+cd $HOME
 
 export GISDBASE="$HOME/grassdata"
 export GISRC="$HOME/.grassrc"
@@ -79,7 +81,7 @@ fi
 
 if [ "$1" = "--gui" ]
 then
-    $GRASS_COMMAND -gui "$MAPSET_PATH"
+    $GRASS_COMMAND -f -gui "$MAPSET_PATH"
     exit
 fi
 
@@ -104,19 +106,19 @@ export MAPS=`g.list type=raster sep=, pat="orginal_*"`
 g.region rast="$MAPS" -p
 r.patch --overwrite in="$MAPS" out="raw_master"
 
-## Resize Master
-#echo " ========== Resize =========="
-##master_info="$(r.info -g raw_master)"
-##master_rows=$(echo "$master_info" | grep -o 'rows.*$' | grep -o '[0-9]\+')
-##master_cols=$(echo "$master_info" | grep -o 'cols.*$' | grep -o '[0-9]\+')
-##master_rows=$(expr $master_rows / $RESIZE)
-##master_cols=$(expr $master_cols / $RESIZE)
-#g.region rast=raw_master -p
-#r.resamp.rst\
-#    input=raw_master\
-#    ew_res=60\
-#    ns_res=60\
-#    elevation=scaled_master
+# Resize Master
+echo " ========== Resize =========="
+#master_info="$(r.info -g raw_master)"
+#master_rows=$(echo "$master_info" | grep -o 'rows.*$' | grep -o '[0-9]\+')
+#master_cols=$(echo "$master_info" | grep -o 'cols.*$' | grep -o '[0-9]\+')
+#master_rows=$(expr $master_rows / $RESIZE)
+#master_cols=$(expr $master_cols / $RESIZE)
+g.region rast=raw_master -p
+r.resamp.rst\
+    input=raw_master\
+    ew_res=60\
+    ns_res=60\
+    elevation=scaled_master
 
 date
 # Fill master
@@ -136,30 +138,50 @@ echo " ========== Flow Accumulation =========="
 r.watershed ele=master acc=accumulation
 
 # WOTUS
+
 date
 echo " ========== WOTUS Determine =========="
+function wotus() {
+echo " ========== $1"
+EXPR="wotus_$1=if(accumulation > $1, 1, if(accumulation >= 0, null(), 0))"
+echo $EXPR
 # Determine
 r.mapcalc \
     --overwrite\
-    expression="wotus=if(accumulation > $THRESHOLD, 1, if(accumulation >= 0, null(), 0))"
+    expression="$EXPR"
 
 # Apply Colors
 WOTUS_COLORS="$HOME/wotus_colors"
-echo '0 255:0:0' > $WOTUS_COLORS # Error
-echo '1 0:0:0' >> $WOTUS_COLORS # WOTUS
+echo "0 $2" > $WOTUS_COLORS # Error
+echo "1 $2" >> $WOTUS_COLORS # WOTUS
 
 r.colors\
     rules="$WOTUS_COLORS"\
-    map=wotus
+    map=wotus_$1
 
 date
 echo " ========== EXPORT =========="
-r.out.gdal input=wotus output=wotus.gtiff
+r.out.gdal\
+    --overwrite\
+    input=wotus_$1\
+    output=wotus_$1.gtiff
 
 date
 echo " ========== TILES GENERATION =========="
-gdal_translate -of vrt -expand rgba wotus.gtiff temp.vrt
-gdal2tiles.py -v -w leaflet temp.vrt $TILE_DIR
+gdal_translate -of vrt -expand rgba wotus_$1.gtiff temp_$1.vrt
+gdal2tiles.py -v -w leaflet temp_$1.vrt $1'_'$TILE_DIR
+date
+}
+
+#wotus '20000' '189:0:38'
+#wotus '15000' '240:59:32'
+#wotus '10000' '253:141:60'
+#wotus '5000' '254:204:92'
+
+wotus '20000' '189:0:38'
+wotus '15000' '189:0:38'
+wotus '10000' '189:0:38'
+wotus '5000' '189:0:38'
 
 echo " ========== DONE =========="
 date
