@@ -1,2 +1,2 @@
 # Cahokia
-An implementation of the D8 algorithm using [GDAL](http://www.gdal.org/) in C++.
+Currently generate script for data for [the frontend](https://github.com/team-apah/map).
