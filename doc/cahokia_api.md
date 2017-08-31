@@ -1,7 +1,7 @@
 # Cahokia HTTP API
 
 The backend server, `/cahokia/...` takes requests in the form of simple HTTP
-GET requests, with the information in the URL.
+GET requests, with the requested information going in the URL.
 Information is returned in JSON. All requests will to `/cahokia/` will return
 the following information:
 
@@ -41,7 +41,7 @@ valid non zero integer.
     - Response code is [200 "OK"](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1)
 if true.
 - `queued` : `boolean`
-    - True if the value is the the queue/being generated.
+    - True if the value is in the queue/being generated.
 - Response code is [202 "Accepted"](https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.3)
  if the value hasn't been generated
 and is not in the queue. Also `generated` and `queued` will both be false.
