@@ -1,2 +1,2 @@
 RewriteEngine On
-RewriteRule ^cahokia/.*$ cahokia.php [L,QSA]
+RewriteRule ^cahokia.*$ cahokia.php [L,QSA]

@@ -1,2 +1,6 @@
 # Cahokia
-Currently generate script for data for [the frontend](https://github.com/team-apah/map).
+Backend Server for WotUS Map
+
+[Frontend](https://github.com/team-apah/map)
+
+[Server API](doc/cahokia_api.md)
