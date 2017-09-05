@@ -45,7 +45,7 @@ function get_status() {
 function serve() {
 	$url = $_SERVER['REQUEST_URI'];
     $valid = false;
-    $response_code = 200; # Bad Request
+    $response_code = 200; # "OK"
 
     # Get Status and wotus values
     $status = get_status();
