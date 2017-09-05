@@ -83,6 +83,8 @@ then
         then # Process the queue head
             item=$(echo "$queue" | head -n 1)
 
+            bash wotus.sh $item
+
             # Remove Head from queue (As an atomic operation)
             (
                 flock -x -w $MAX_WAIT_TIME 255 # Get Lock on Queue
