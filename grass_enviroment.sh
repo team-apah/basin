@@ -1,8 +1,9 @@
+# HOME must be set to the data directory before this starts
+
 # Setup ======================================================================
 
 GRASS_COMMAND='grass72'
 
-TILE_DIR='wotus_tiles'
 RESIZE=8
 WOTUS_COLOR='255:102:255'
 
@@ -70,3 +71,7 @@ function grass_cleanup {
     # remove session tmp directory:
     rm -rf /tmp/grass6-$USER-$GIS_LOCK
 }
+
+# Print Version
+g.version
+

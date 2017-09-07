@@ -6,22 +6,18 @@ HOME_NAME='data'
 export HOME="$SCRIPT_DIR/$HOME_NAME"
 mkdir -p $HOME
 
-# Log
+# Enable Logging
 exec > >(tee -i logs/$(date +"%Y_%m_%d_%H_%M_%S")'.log')
 exec 2>&1
 date
 FILES=$(find "$(realpath $1)" -name '*.img')
 
+# Set Up Enviroment
 cd $HOME
 source grass_enviroment.sh
-source grass_enviroment.sh
-
-# Print Version
-g.version
-
-date
 
 # Import DEMs
+date
 echo " ========== Importing =========="
 for i in $FILES
 do
