@@ -7,6 +7,9 @@ GRASS_COMMAND='grass72'
 RESIZE=8
 WOTUS_COLOR='255:102:255'
 
+export WOTUS_MAPS_DIR="../wotus_maps/"
+export STATIC_MAPS_DIR="../static_maps/"
+
 # Reference Coordinate System
 REFERENCE='epsg:4269' # aka NAD 83
 # https://en.wikipedia.org/wiki/North_American_Datum
@@ -61,6 +64,9 @@ then
     $GRASS_COMMAND -text -c "$MAPSET_PATH" -e
 fi
 
+# Create tmp directory if it doesn't exist
+mkdir -p tmp
+
 # Cleanup ====================================================================
 function grass_cleanup {
     sleep 1
@@ -70,6 +76,9 @@ function grass_cleanup {
 
     # remove session tmp directory:
     rm -rf /tmp/grass6-$USER-$GIS_LOCK
+
+    # Remove Cahokia Temp directory
+    rm -fr tmp
 }
 
 # Print Version

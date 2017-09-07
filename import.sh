@@ -1,19 +1,20 @@
 #!/bin/bash
 
-# Create Data Directory and cd into it
+# CD into Data Directory as $HOME
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HOME_NAME='data'
 export HOME="$SCRIPT_DIR/$HOME_NAME"
-mkdir -p $HOME
+cd $HOME
 
-# Enable Logging
+# Enable Log
+mkdir -p logs
 exec > >(tee -i logs/$(date +"%Y_%m_%d_%H_%M_%S")'.log')
 exec 2>&1
 date
+
 FILES=$(find "$(realpath $1)" -name '*.img')
 
 # Set Up Enviroment
-cd $HOME
 source grass_enviroment.sh
 
 # Import DEMs

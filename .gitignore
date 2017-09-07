@@ -4,9 +4,3 @@ queue_lock
 
 data/*
 !data/.gitkeep
-
-wotus_map/*
-!wotus_map/.gitkeep
-
-static_map/*
-!static_map/.gitkeep
