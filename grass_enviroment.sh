@@ -30,9 +30,22 @@ export TGISDB_DRIVER=sqlite
 export TGISDB_DATABASE="$GISDBASE/$LOCATION/PERMANENT/tgis/sqlite.db"
 
 # path to GRASS binaries and libraries:
-export GISBASE="/opt/grass"
+if [ -d '/opt/grass' ]
+then
+    export GISBASE="/opt/grass"
+elif [ -d '/lib64/grass' ]
+then
+    export GISBASE="/lib64/grass"
+else
+    echo 'Couldn't find where GRASS's libraries are' 1>&2
+    exit 1
+fi
 
-export GRASS_PYTHON="$GISBASE/bin/python"
+if [ -f "$GISBASE/bin/python" ]
+then
+    export GRASS_PYTHON="$GISBASE/bin/python"
+fi
+
 export GRASS_MESSAGE_FORMAT=plain
 export GRASS_TRUECOLOR=TRUE
 export GRASS_TRANSPARENT=TRUE
