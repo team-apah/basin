@@ -15,7 +15,7 @@ date
 FILES=$(find "$(realpath $1)" -name '*.img')
 
 # Set Up Enviroment
-source grass_enviroment.sh
+source ../grass_enviroment.sh
 
 # Import DEMs
 date

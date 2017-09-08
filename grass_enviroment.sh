@@ -33,9 +33,9 @@ export TGISDB_DATABASE="$GISDBASE/$LOCATION/PERMANENT/tgis/sqlite.db"
 if [ -d '/opt/grass' ]
 then
     export GISBASE="/opt/grass"
-elif [ -d '/lib64/grass' ]
+elif [ -d '/lib64/grass72' ]
 then
-    export GISBASE="/lib64/grass"
+    export GISBASE="/lib64/grass72"
 else
     echo 'Couldn't find where GRASS's libraries are' 1>&2
     exit 1
