@@ -12,17 +12,19 @@ for amount of water flow.
 [Server API](doc/cahokia_api.md)
 
 ## Manual Invocation
-This assumes:
 
-* A standard Linux Distribution
-* GRASS GIS installed
-* `PATH\_TO\_DEMS` is the path to directory containing the IMG files.
-* `QVALUE` is the value threshold to highlight on the maps.
+* This assumes:
+    * A standard Linux Distribution
+    * GRASS GIS 7.2 installed
+    * `PATH_TO_DEMS` is the path to directory containing the IMG files.
+    * `QVALUE` is the value threshold to highlight on the maps.
 
 ```
-$ bash generate.sh PATH_TO_DEMS
+$ ./import PATH_TO_DEMS
 ...
-$ bash wotus.sh QVALUE
+$ ./wotus QVALUE
 ```
 
-`wotus.sh` can be run multiple times for each Q Value desired.
+`wotus` can be run multiple times for each Q Value desired.
+
+`./grass_gui` can be used to view the files through the GRASS GUI.
