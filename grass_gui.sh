@@ -10,7 +10,7 @@ mkdir -p $HOME
 cd $HOME
 
 # Set Up GRASS ENVIROMENT
-source grass_enviroment.sh
+source ../grass_enviroment.sh
 
 # Run GRASS
 $GRASS_COMMAND -f -gui "$MAPSET_PATH"
