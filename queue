@@ -83,7 +83,7 @@ then
         then # Process the queue head
             item=$(echo "$queue" | head -n 1)
 
-            bash wotus.sh $item
+            ./wotus $item
 
             # Remove Head from queue (As an atomic operation)
             (
