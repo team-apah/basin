@@ -29,14 +29,6 @@ r.mapcalc \
     --overwrite\
     expression="$EXPR"
 
-# Apply Colors to new map
-#WOTUS_COLORS="$HOME/tmp/wotus_colors"
-#echo "0 $WOTUS_COLOR" > $WOTUS_COLORS # Error
-#echo "1 $WOTUS_COLOR" >> $WOTUS_COLORS # WOTUS
-#r.colors\
-#    rules="$WOTUS_COLORS"\
-#    map=wotus_$1
-
 # Export to TIFF
 date
 echo " ========== EXPORT =========="
@@ -47,11 +39,10 @@ r.out.gdal\
 #gdal_translate -expand rgba tmp/_wotus_$1.tif tmp/wotus_$1.tif
 
 mv tmp/wotus_$1.gtiff .
-# Generate tiles for Leaflet
-#date
-#echo " ========== TILES GENERATION =========="
-#gdal2tiles.py -v -w leaflet tmp/temp_$1.vrt $WOTUS_MAPS_DIR$1
-#date
+
+# Import into Geoserver
+date
 
 # Clean Up
 grass_cleanup
+date

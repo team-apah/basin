@@ -63,8 +63,13 @@ function serve() {
             if (in_array($matches[1], $wotus_values)) {
                 $status['generated'] = true;
             } else {
-                $response_code = 202; # Accepted, needs to be generated
                 $status['generated'] = false;
+                exec("./queue " . $matches[1], $exec_output, $queue_rv);
+                if ($queue_rv != 0) {
+                    $response_code = 500; # Internal Error
+                } else {
+                    $response_code = 202; # Accepted, needs to be generated
+                }
             }
         }
     }

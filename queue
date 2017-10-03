@@ -5,7 +5,7 @@
 #      2 if a lock couldn't be established
 #     10 if the argument is already queued
 
-export QUEUE_FILE='queue'
+export QUEUE_FILE='queue_values'
 export QUEUE_LOCK='queue_lock'
 export MAX_WAIT_TIME=15
 export PROCESS_INTERVAL=1
@@ -54,16 +54,17 @@ then
 
     (
         # Get Lock on queue
-        if flock -x -w $MAX_WAIT_TIME 255
+        flock -x -w $MAX_WAIT_TIME 255
+        if [ $? != 0 ]
         then
             exit 2
         fi
         # Check if the value is in the queue file
-        if grep "^$1\$" $QUEUE_FILE &> /dev/null
+        if grep "^$2\$" $QUEUE_FILE &> /dev/null
         then
             exit 10
         else # Queue the argument
-            echo "$1" >> $QUEUE_FILE
+            echo "$2" >> $QUEUE_FILE
         fi
     ) 255>$QUEUE_LOCK
     exit $?
@@ -83,7 +84,7 @@ then
         then # Process the queue head
             item=$(echo "$queue" | head -n 1)
 
-            ./wotus $item
+            echo PROCESS $item
 
             # Remove Head from queue (As an atomic operation)
             (
