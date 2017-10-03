@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+# Reference:
+# https://gis.stackexchange.com/questions/6479/programming-geoserver-2-0-2-to-add-a-raster-data-store-and-layer-without-the-ui
+
+GS="http://localhost:8080/geoserver/rest"
+CURL="curl -u admin:geoserver"
+
+# Create Workspace
+# TODO: Separate into a setup procedure
+curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
+     -d '<workspace><name>wotus</name></workspace>' \
+     http://localhost:8080/geoserver/rest/workspaces
+
+# TODO: Make variable
+# These two commands add tell geoserver to add the data
+# Create DataStore
+curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
+     -d '<coverageStore>
+         <name>wotus_35000</name>
+         <workspace>wotus</workspace>
+         <enabled>true</enabled>
+         <type>GeoTIFF</type>
+         <url>/data/university/2017fall/cs499/cahokia/data/wotus_35000.geotiff</url>
+         </coverageStore>' \
+     "http://localhost:8080/geoserver/rest/workspaces/wotus/coveragestores?configure=all"
+
+# Create Layer
+curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
+     -d '<coverage>
+         <name>wotus_35000</name>
+         <title>wotus_35000</title>
+         <srs>EPSG:4269</srs>
+         </coverage>' \
+     "http://localhost:8080/geoserver/rest/workspaces/wotus/coveragestores/wotus_35000/coverages"
