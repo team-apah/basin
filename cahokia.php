@@ -28,15 +28,15 @@ function get_status() {
 		return $status;
 	}
 
-	# Else check for map directories
-	$status['system_error'] = !(
-		file_exists($GLOBALS['wotus_maps_path'])
-			&&
-		file_exists($GLOBALS['static_maps_path'])
-	);
-	if ($status['system_error']) { # Return Error
-		return $status;
-	}
+	/* # Else check for map directories */
+	/* $status['system_error'] = !( */
+	/* 	file_exists($GLOBALS['wotus_maps_path']) */
+	/* 		&& */
+	/* 	file_exists($GLOBALS['static_maps_path']) */
+	/* ); */
+	/* if ($status['system_error']) { # Return Error */
+	/* 	return $status; */
+	/* } */
 
 	# Return complete Status
 	return $status;
@@ -64,7 +64,7 @@ function serve() {
                 $status['generated'] = true;
             } else {
                 $status['generated'] = false;
-                exec("./queue " . $matches[1], $exec_output, $queue_rv);
+                exec("./queue add " . $matches[1], $exec_output, $queue_rv);
                 if ($queue_rv != 0) {
                     $response_code = 500; # Internal Error
                 } else {
