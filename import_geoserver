@@ -5,33 +5,49 @@ set -e
 # Reference:
 # https://gis.stackexchange.com/questions/6479/programming-geoserver-2-0-2-to-add-a-raster-data-store-and-layer-without-the-ui
 
-GS="http://localhost:8080/geoserver/rest"
+WS_NAME="wotus"
+GEO_REFERENCE="EPSG:4269"
+LAYER="wotus_$1"
+SOURCE="/data/university/2017fall/cs499/cahokia/data/$LAYER.geotiff"
+SOURCE_TYPE="GeoTIFF"
+
 CURL="curl -u admin:geoserver"
+POST="$CURL -XPOST"
+POST_XML="$POST -H 'Content-type: text/xml'"
+
+GS="http://localhost:8080/geoserver/rest"
+WS_URL="$GS/rest/workspaces/$WS_NAME"
+
+# TODO: Separate into a setup procedure
 
 # Create Workspace
-# TODO: Separate into a setup procedure
-curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
-     -d '<workspace><name>wotus</name></workspace>' \
-     http://localhost:8080/geoserver/rest/workspaces
+$POST_XML \
+     -d "<workspace><name>$WS_NAME</name></workspace>" \
+     $GS/workspaces
 
-# TODO: Make variable
+# TODO: Finish, get wotus style to be default
+# Upload Style
+#$POST_XML \
+#    -d @$STYLE \
+#    $GS/
+
 # These two commands add tell geoserver to add the data
 # Create DataStore
-curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
-     -d '<coverageStore>
-         <name>wotus_35000</name>
-         <workspace>wotus</workspace>
+$POST_XML \
+     -d "<coverageStore>
+         <name>$LAYER</name>
+         <workspace>$WS_NAME</workspace>
          <enabled>true</enabled>
-         <type>GeoTIFF</type>
-         <url>/data/university/2017fall/cs499/cahokia/data/wotus_35000.geotiff</url>
-         </coverageStore>' \
-     "http://localhost:8080/geoserver/rest/workspaces/wotus/coveragestores?configure=all"
+         <type>$SOURCE_TYPE</type>
+         <url>$SOURCE</url>
+         </coverageStore>" \
+     $WS_URL/coveragestores?configure=all
 
 # Create Layer
-curl -u admin:geoserver -XPOST -H 'Content-type: text/xml' \
-     -d '<coverage>
-         <name>wotus_35000</name>
-         <title>wotus_35000</title>
-         <srs>EPSG:4269</srs>
-         </coverage>' \
-     "http://localhost:8080/geoserver/rest/workspaces/wotus/coveragestores/wotus_35000/coverages"
+$POST_XML  \
+     -d "<coverage>
+         <name>$LAYER</name>
+         <title>$LAYER</title>
+         <srs>$GEO_REFERENCE</srs>
+         </coverage>" \
+     $WS_URL/coveragestores/$LAYER/coverages
