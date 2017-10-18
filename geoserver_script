@@ -101,15 +101,19 @@ bash -v -c "$PUT_XML --fail \
      "
 echo ''
 
-echo $LAYER >> ~/completed
+echo $LAYER >> "$DIR/data/completed"
 }
 
 if [ "$1" = 'setup' ]
 then
     setup
+elif [ "$1" = 'run' ]
+then
+    cd $DIR/geoserver
+    exec java -jar start.jar
 elif [ "$1" = 'add' ]
 then
     add_q_value $2
 else
-    echo "options are \"setup\" or \"add QVALUE\"" >&2; exit 1
+    echo "options are \"setup\", \"run\", and \"add QVALUE\"" >&2; exit 1
 fi
