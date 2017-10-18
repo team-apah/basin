@@ -4,10 +4,11 @@ $GLOBALS['base_url'] = '/cahokia';
 $GLOBALS['status_url'] = $GLOBALS['base_url'] . '/status';
 
 # Paths
-$GLOBALS['cahokia_path'] = dirname(__FILE__);
+$GLOBALS['cahokia_path'] = dirname(__FILE__) . '/cahokia';
 $GLOBALS['wotus_maps_path'] = $GLOBALS['cahokia_path'] . '/wotus_maps';
 $GLOBALS['static_maps_path'] = $GLOBALS['cahokia_path'] . '/static_maps';
 $GLOBALS['ready_path'] = $GLOBALS['cahokia_path'] . '/ready';
+$GLOBALS['completed_path'] = $GLOBALS['cahokia_path'] . '/completed';
 
 function directory_contents($path) {
 	return array_values(array_diff(scandir($path), array('..', '.')));
@@ -60,9 +61,8 @@ function serve() {
         $rv = preg_match('/\/cahokia\/wotus\/(\\d+)/', $url, $matches);
         if ($rv) {
             $valid = true;
-            if (in_array($matches[1], $wotus_values)) {
-                $status['generated'] = true;
-            } else {
+            exec("grep '^" . $matches[1] . "$' " . $GLOBALS['completed_path'], $exec_output, $grep_rv);
+            if ($grep_rv) { // Value has not been generated
                 $status['generated'] = false;
                 exec("./queue add " . $matches[1], $exec_output, $queue_rv);
                 if ($queue_rv != 0) {
@@ -70,6 +70,8 @@ function serve() {
                 } else {
                     $response_code = 202; # Accepted, needs to be generated
                 }
+            } else {
+                $status['generated'] = true;
             }
         }
     }

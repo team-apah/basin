@@ -4,6 +4,13 @@
 # Create a colored map highlighted where the flow value exceeds the
 # argument
 
+set -e
+
+if ! [[ $1 =~ ^[0-9]+$ ]]
+then
+    echo "Invalid QVALUE: $LAYER" >&2; exit 1
+fi
+
 # CD into Data Directory as $HOME
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 HOME_NAME='data'
@@ -29,19 +36,19 @@ r.mapcalc \
     --overwrite\
     expression="$EXPR"
 
-# Export to TIFF
+
+# Export to GEOTIFF
 date
-echo " ========== EXPORT =========="
+echo " ========== Export to GEOTIFF =========="
 r.out.gdal\
     --overwrite\
     input=wotus_$1\
-    output=tmp/wotus_$1.gtiff
-#gdal_translate -expand rgba tmp/_wotus_$1.tif tmp/wotus_$1.tif
+    output=$1.gtiff
 
-mv tmp/wotus_$1.gtiff .
-
-# Import into Geoserver
+# Inform Geoserver about new raster
 date
+echo " ========== Add GEOTIFF to Geoserver =========="
+../geoserver_script add $1
 
 # Clean Up
 grass_cleanup

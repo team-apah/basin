@@ -1,0 +1,123 @@
+#!/bin/bash
+
+# References:
+
+# Geoserver REST Docs: (Which is lacking XML specifics)
+# http://docs.geoserver.org/stable/en/user/rest/index.html
+
+# General Method of add layer:
+# https://gis.stackexchange.com/questions/6479/programming-geoserver-2-0-2-to-add-a-raster-data-store-and-layer-without-the-ui
+
+# Setting Default Style from curl:
+# https://stackoverflow.com/questions/18312154/issue-with-changing-the-default-style-of-a-layer-with-curl-in-php
+
+set -e # Stop if a program does not return a zero
+
+WS_NAME="wotus"
+GEO_REFERENCE="EPSG:4269"
+SOURCE_TYPE="GeoTIFF"
+STYLE='WotUS_Style'
+
+CURL="curl -u admin:geoserver"
+PUT="$CURL -XPUT"
+POST="$CURL -XPOST"
+DELETE="$CURL -XDELETE"
+XML='-H "Content-type: text/xml"'
+PUT_XML="$PUT $XML"
+POST_XML="$POST $XML"
+DELETE_XML=$DELETE' -H "Accept: text/xml"'
+
+GS_URL="http://localhost:8080/geoserver/rest"
+WORKSPACES_URL="$GS_URL/workspaces"
+WS_URL="$WORKSPACES_URL/$WS_NAME"
+STYLES_URL="$GS_URL/styles"
+STYLE_URL="$STYLES_URL/$STYLE.xml"
+STORES_URL="$WS_URL/coveragestores"
+
+function setup {
+# Create Workspace
+bash -v -c "$POST_XML \
+     -d '<workspace><name>'$WS_NAME'</name></workspace>' \
+     $WORKSPACES_URL \
+     "
+echo ''
+
+# Upload Style
+bash -v -c "$POST -H \"Content-type: application/vnd.ogc.sld+xml\" \
+     -d @$STYLE.xml \
+     $STYLES_URL?name=$STYLE \
+     "
+echo ''
+}
+
+function add_q_value() {
+LAYER="$1"
+if ! [[ $LAYER =~ ^[0-9]+$ ]]
+then
+    echo "Invalid Number: $LAYER" >&2; exit 1
+fi
+
+SOURCE="/data/university/2017fall/cs499/cahokia/data/$LAYER.gtiff"
+if [ ! -f $SOURCE ]
+then
+    echo "No such file: $SOURCE" >&2; exit 1
+    exit 1
+fi
+
+# Create Store
+bash -v -c "$POST_XML --fail \
+     -d \"<coverageStore>
+         <name>$LAYER</name>
+         <workspace>$WS_NAME</workspace>
+         <enabled>true</enabled>
+         <type>$SOURCE_TYPE</type>
+         <url>$SOURCE</url>
+         </coverageStore>\" \
+     $STORES_URL?configure=all \
+     "
+echo ''
+
+# Create Layer
+bash -v -c "$POST_XML --fail \
+     -d \"<coverage>
+         <name>$LAYER</name>
+         <title>$LAYER</title>
+         <srs>$GEO_REFERENCE</srs>
+         </coverage>\" \
+     $STORES_URL/$LAYER/coverages \
+     "
+echo ''
+
+# Apply Style
+bash -v -c "$PUT_XML --fail \
+     -d \"<layer>
+          <defaultStyle>
+          <name>$STYLE</name>
+          </defaultStyle>
+          </layer>\" \
+     $GS_URL/layers/$WS_NAME:$LAYER \
+     "
+echo ''
+
+echo $LAYER >> ~/completed
+}
+
+function download {
+    wget https://sourceforge.net/projects/geoserver/files/GeoServer/2.11.2/geoserver-2.11.2-bin.zip -P /tmp
+    unzip /tmp/geoserver-2.11.2-bin.zip -d /tmp
+    rm -fr /tmp/geoserver-2.11.2-bin.zip
+    mv /tmp/geoserver-2.11.2 geoserver
+}
+
+if [ "$1" = 'setup' ]
+then
+    setup
+elif [ "$1" = 'add' ]
+then
+    add_q_value $2
+elif [ "$1" = 'download' ]
+then
+    download
+else
+    echo "options are \"download\" or \"setup\" or \"add QVALUE\"" >&2; exit 1
+fi

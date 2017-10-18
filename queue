@@ -68,10 +68,9 @@ then
         fi
     ) 255>$QUEUE_LOCK
     exit $?
-fi
 
 # Check for add arguemnt
-if [ "$1" = 'serve' ] 
+elif [ "$1" = 'serve' ] 
 then
     # Clean up
     trap '{ echo "Process Interupted" ; rm -f $QUEUE_LOCK; exit 1; }' INT
@@ -84,7 +83,7 @@ then
         then # Process the queue head
             item=$(echo "$queue" | head -n 1)
 
-            echo PROCESS $item
+            ./wotus $item
 
             # Remove Head from queue (As an atomic operation)
             (

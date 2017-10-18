@@ -1,6 +1,7 @@
 build
-queue
+queue_values
 queue_lock
+geoserver
 
 data/*
 !data/.gitkeep
