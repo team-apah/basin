@@ -34,6 +34,8 @@ STYLES_URL="$GS_URL/styles"
 STYLE_URL="$STYLES_URL/$STYLE.xml"
 STORES_URL="$WS_URL/coveragestores"
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 function setup {
 # Create Workspace
 bash -v -c "$POST_XML \
@@ -57,7 +59,7 @@ then
     echo "Invalid Number: $LAYER" >&2; exit 1
 fi
 
-SOURCE="/data/university/2017fall/cs499/cahokia/data/$LAYER.gtiff"
+SOURCE="$DIR/data/$LAYER.gtiff"
 if [ ! -f $SOURCE ]
 then
     echo "No such file: $SOURCE" >&2; exit 1
@@ -102,22 +104,12 @@ echo ''
 echo $LAYER >> ~/completed
 }
 
-function download {
-    wget https://sourceforge.net/projects/geoserver/files/GeoServer/2.11.2/geoserver-2.11.2-bin.zip -P /tmp
-    unzip /tmp/geoserver-2.11.2-bin.zip -d /tmp
-    rm -fr /tmp/geoserver-2.11.2-bin.zip
-    mv /tmp/geoserver-2.11.2 geoserver
-}
-
 if [ "$1" = 'setup' ]
 then
     setup
 elif [ "$1" = 'add' ]
 then
     add_q_value $2
-elif [ "$1" = 'download' ]
-then
-    download
 else
-    echo "options are \"download\" or \"setup\" or \"add QVALUE\"" >&2; exit 1
+    echo "options are \"setup\" or \"add QVALUE\"" >&2; exit 1
 fi
