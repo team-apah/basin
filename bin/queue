@@ -5,10 +5,12 @@
 #      2 if a lock couldn't be established
 #     10 if the argument is already queued
 
-export QUEUE_FILE='queue_values'
-export QUEUE_LOCK='queue_lock'
-export MAX_WAIT_TIME=15
-export PROCESS_INTERVAL=1
+# Set parent of parent of this file as HOME and cd into it
+export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+cd $HOME
+
+# Set Up ENVIROMENT
+source cahokia_enviroment.sh
 
 function print_help {
     echo 'queue.sh:'
@@ -83,7 +85,7 @@ then
         then # Process the queue head
             item=$(echo "$queue" | head -n 1)
 
-            ./wotus $item
+            wotus $item
 
             # Remove Head from queue (As an atomic operation)
             (

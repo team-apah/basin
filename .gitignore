@@ -1,7 +1,3 @@
-build
-queue_values
-queue_lock
-geoserver
-
-data/*
-!data/.gitkeep
+/geoserver/
+/data/
+/.grass7

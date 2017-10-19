@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Open GRASS GIS GUI in the Cahokia/WotUS GRASS Enviroment
+
+# Set parent of parent of this file as HOME and cd into it
+export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+cd $HOME
+
+# Set Up GRASS ENVIROMENT
+source grass_enviroment.sh
+
+# Run GRASS
+$GRASS_COMMAND -f -gui "$MAPSET_PATH"
+
+# Ceanup
+grass_cleanup

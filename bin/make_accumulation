@@ -8,9 +8,11 @@ cd $HOME
 
 # Enable Log
 mkdir -p logs
-exec > >(tee -i logs/$(date +"%Y_%m_%d_%H_%M_%S")'.log')
+exec > >(tee -i data/logs/$(date +"%Y_%m_%d_%H_%M_%S")'.log')
 exec 2>&1
 date
+
+[ ! -d $1 ] && exit 1
 
 FILES=$(find "$(realpath $1)" -name '*.img')
 

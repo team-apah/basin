@@ -11,10 +11,16 @@
 # Setting Default Style from curl:
 # https://stackoverflow.com/questions/18312154/issue-with-changing-the-default-style-of-a-layer-with-curl-in-php
 
+# Set parent of parent of this file as HOME and cd into it
+export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+cd $HOME
+
+# Set Up GRASS ENVIROMENT
+source cahokia_enviroment.sh
+
 set -e # Stop if a program does not return a zero
 
 WS_NAME="wotus"
-GEO_REFERENCE="EPSG:4269"
 SOURCE_TYPE="GeoTIFF"
 STYLE='WotUS_Style'
 
@@ -33,8 +39,6 @@ WS_URL="$WORKSPACES_URL/$WS_NAME"
 STYLES_URL="$GS_URL/styles"
 STYLE_URL="$STYLES_URL/$STYLE.xml"
 STORES_URL="$WS_URL/coveragestores"
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function setup {
 # Create Workspace
@@ -59,7 +63,7 @@ then
     echo "Invalid Number: $LAYER" >&2; exit 1
 fi
 
-SOURCE="$DIR/data/$LAYER.gtiff"
+SOURCE="$DATA_DIR/$LAYER.gtiff"
 if [ ! -f $SOURCE ]
 then
     echo "No such file: $SOURCE" >&2; exit 1
@@ -101,7 +105,7 @@ bash -v -c "$PUT_XML --fail \
      "
 echo ''
 
-echo $LAYER >> "$DIR/data/completed"
+echo $LAYER >> "$HOME/data/completed"
 }
 
 if [ "$1" = 'setup' ]
@@ -109,7 +113,7 @@ then
     setup
 elif [ "$1" = 'run' ]
 then
-    cd $DIR/geoserver
+    cd geoserver
     exec java -jar start.jar
 elif [ "$1" = 'add' ]
 then

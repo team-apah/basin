@@ -1,21 +1,15 @@
-# HOME must be set to the data directory before this starts
+# HOME must be set to the parent of the data directory before this starts
+
+source "$HOME/cahokia_enviroment.sh"
 
 # Setup ======================================================================
 
 GRASS_COMMAND='grass72'
 
-RESIZE=8
 WOTUS_COLOR='255:102:255'
 
-export WOTUS_MAPS_DIR="../wotus_maps/"
-export STATIC_MAPS_DIR="../static_maps/"
-
-# Reference Coordinate System
-REFERENCE='epsg:4269' # aka NAD 83
-# https://en.wikipedia.org/wiki/North_American_Datum
-
-export GISDBASE="$HOME/grassdata"
-export GISRC="$HOME/.grassrc"
+export GISDBASE="$HOME/data/grassdata"
+export GISRC="$HOME/data/.grassrc"
 LOCATION='generate_location'
 MAPSET='generate_mapset'
 
@@ -73,12 +67,9 @@ MAPSET_PATH="$LOCATION_PATH/$MAPSET"
 if [ ! -d $GISDBASE ]
 then
     mkdir -p $GISDBASE
-    $GRASS_COMMAND -text -c "$REFERENCE" "$LOCATION_PATH" -e
+    $GRASS_COMMAND -text -c "$GEO_REFERENCE" "$LOCATION_PATH" -e
     $GRASS_COMMAND -text -c "$MAPSET_PATH" -e
 fi
-
-# Create tmp directory if it doesn't exist
-mkdir -p tmp
 
 # Cleanup ====================================================================
 function grass_cleanup {
@@ -89,9 +80,6 @@ function grass_cleanup {
 
     # remove session tmp directory:
     rm -rf /tmp/grass6-$USER-$GIS_LOCK
-
-    # Remove Cahokia Temp directory
-    rm -fr tmp
 }
 
 # Print Version

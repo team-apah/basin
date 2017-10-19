@@ -4,9 +4,7 @@ $GLOBALS['base_url'] = '/cahokia';
 $GLOBALS['status_url'] = $GLOBALS['base_url'] . '/status';
 
 # Paths
-$GLOBALS['cahokia_path'] = dirname(__FILE__) . '/cahokia';
-$GLOBALS['wotus_maps_path'] = $GLOBALS['cahokia_path'] . '/wotus_maps';
-$GLOBALS['static_maps_path'] = $GLOBALS['cahokia_path'] . '/static_maps';
+$GLOBALS['cahokia_path'] = dirname(__FILE__) . '/data';
 $GLOBALS['ready_path'] = $GLOBALS['cahokia_path'] . '/ready';
 $GLOBALS['completed_path'] = $GLOBALS['cahokia_path'] . '/completed';
 
@@ -24,21 +22,6 @@ function get_status() {
 	# Assume the system is "ready" if the 'ready' file exists
 	$status['system_ready'] = file_exists($GLOBALS['ready_path']);
 
-	# Return if the system isn't ready
-	if (!$status['system_ready']) {
-		return $status;
-	}
-
-	/* # Else check for map directories */
-	/* $status['system_error'] = !( */
-	/* 	file_exists($GLOBALS['wotus_maps_path']) */
-	/* 		&& */
-	/* 	file_exists($GLOBALS['static_maps_path']) */
-	/* ); */
-	/* if ($status['system_error']) { # Return Error */
-	/* 	return $status; */
-	/* } */
-
 	# Return complete Status
 	return $status;
 }
@@ -48,14 +31,12 @@ function serve() {
     $valid = false;
     $response_code = 200; # "OK"
 
-    # Get Status and wotus values
+    # Get Status
     $status = get_status();
-    $wotus_values = directory_contents($GLOBALS['wotus_maps_path']);
     
     # Process URL
     if ($url == $GLOBALS['status_url']) { # Return Status
         # Add available static maps to the state
-        $status['static_maps'] = directory_contents($GLOBALS['static_maps_path']);
         $valid = true;
 	} else { # Query about Wotus Value or Invalid URL
         $rv = preg_match('/\/cahokia\/wotus\/(\\d+)/', $url, $matches);
@@ -65,10 +46,10 @@ function serve() {
             if ($grep_rv) { // Value has not been generated
                 $status['generated'] = false;
                 exec("./queue add " . $matches[1], $exec_output, $queue_rv);
-                if ($queue_rv != 0) {
-                    $response_code = 500; # Internal Error
-                } else {
+                if ($queue_rv == 0 || $queue_rv == 10) {
                     $response_code = 202; # Accepted, needs to be generated
+                } else {
+                    $response_code = 500; # Internal Error
                 }
             } else {
                 $status['generated'] = true;
