@@ -4,7 +4,7 @@ source "$HOME/cahokia_enviroment.sh"
 
 # Setup ======================================================================
 
-GRASS_COMMAND='grass72'
+export GRASS_COMMAND='grass72'
 
 WOTUS_COLOR='255:102:255'
 
@@ -30,6 +30,9 @@ then
 elif [ -d '/lib64/grass72' ]
 then
     export GISBASE="/lib64/grass72"
+elif [ -d '/usr/lib/grass72' ]
+then
+    export GISBASE='/usr/lib/grass72'
 else
     echo 'Couldn't find where GRASS's libraries are' 1>&2
     exit 1

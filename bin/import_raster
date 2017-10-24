@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# CD into Data Directory as $HOME
+export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+cd $HOME
+
+# Enable Log
+mkdir -p logs
+exec > >(tee -i data/logs/$(date +"%Y_%m_%d_%H_%M_%S")'.log')
+exec 2>&1
+date
+
+# Set Up Environment
+source grass_enviroment.sh
+
+# Import raster
+file=$(basename "$1")
+r.import --overwrite input="$1" output="${file%.*}"
+
+date
+echo " ========== DONE =========="
+
+grass_cleanup
