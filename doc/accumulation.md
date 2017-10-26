@@ -9,7 +9,7 @@ accidentally deleted it like I did while working on this).
 ## Getting the Digital Elevation Model
 
 * As of writing IMG files of Digital Elevation Models (DEMs) can be found at
-[https://viewer.nationalmap.gov/basic](USGS's National Map site):
+[USGS's National Map site](https://viewer.nationalmap.gov/basic/):
     * Select "Elevation Products (3DEP)"
     * Select your desired resolution (greater resolution will
 take much much longer to process but will be more detailed)
