@@ -9,11 +9,11 @@ accidentally deleted it like I did while working on this).
 ## Getting the Digital Elevation Model
 
 * As of writing IMG files of Digital Elevation Models (DEMs) can be found at
-[https://viewer.nationalmap.gov/basic/](USGS's National Map site):
+[https://viewer.nationalmap.gov/basic](USGS's National Map site):
     * Select "Elevation Products (3DEP)"
     * Select your desired resolution (greater resolution will
 take much much longer to process but will be more detailed)
-    * **IMPORTANT** Select **IMG** File Format
+    * **IMPORTANT:** Select **IMG** File Format
     * Click "Find Products" and you should be able to choose from one degree
 latitude by longitude area of the contiguous United States.
 
