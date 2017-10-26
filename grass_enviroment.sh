@@ -8,8 +8,8 @@ export GRASS_COMMAND='grass72'
 
 WOTUS_COLOR='255:102:255'
 
-export GISDBASE="$HOME/data/grassdata"
-export GISRC="$HOME/data/.grassrc"
+export GISDBASE="$DATA_DIR/grassdata"
+export GISRC="$DATA_DIR/.grassrc"
 LOCATION='generate_location'
 MAPSET='generate_mapset'
 

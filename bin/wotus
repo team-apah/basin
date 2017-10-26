@@ -15,39 +15,30 @@ fi
 export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd $HOME
 
-# Enable Log
-mkdir -p logs
-exec > >(tee -i data/logs/$(date +"%Y_%m_%d_%H_%M_%S")'.log')
-exec 2>&1
-date
-
 # Set Up Environment
 source grass_enviroment.sh
 
 # Create new raster with Wotus Value
 date
-echo " ========== WOTUS Determine =========="
-echo " ========== $1"
+echo " ========== WOTUS Determine: $1"
 EXPR="wotus_$1=if(accumulation > $1, 1, if(accumulation >= 0, null(), 0))"
 echo $EXPR
 r.mapcalc \
     --overwrite\
     expression="$EXPR"
 
-
 # Export to GEOTIFF
 date
-echo " ========== Export to GEOTIFF =========="
+echo " ========== Export to GEOTIFF"
 r.out.gdal\
     --overwrite\
     input=wotus_$1\
     output=data/$1.gtiff
 
-# Inform Geoserver about new raster
-date
-echo " ========== Add GEOTIFF to Geoserver =========="
-geoserver_script add $1
-
 # Clean Up
-grass_cleanup
 date
+echo " ========== Clean Up Grass Enviroment"
+grass_cleanup
+
+date
+echo " ========== Wotus $1 Done"

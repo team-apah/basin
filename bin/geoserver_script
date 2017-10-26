@@ -23,8 +23,9 @@ set -e # Stop if a program does not return a zero
 WS_NAME="wotus"
 SOURCE_TYPE="GeoTIFF"
 STYLE='WotUS_Style'
+SOURCE="$WOTUS_DIR/$LAYER.gtiff"
 
-CURL="curl -u admin:geoserver"
+CURL="curl -u \'$GEOSERVER_USERNAME:$GEOSERVER_PASSWORD\'"
 PUT="$CURL -XPUT"
 POST="$CURL -XPOST"
 DELETE="$CURL -XDELETE"
@@ -63,7 +64,6 @@ then
     echo "Invalid Number: $LAYER" >&2; exit 1
 fi
 
-SOURCE="$DATA_DIR/$LAYER.gtiff"
 if [ ! -f $SOURCE ]
 then
     echo "No such file: $SOURCE" >&2; exit 1
@@ -113,7 +113,7 @@ then
     setup
 elif [ "$1" = 'run' ]
 then
-    cd geoserver
+    cd ../geoserver
     exec java -jar start.jar
 elif [ "$1" = 'add' ]
 then
