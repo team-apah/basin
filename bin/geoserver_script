@@ -23,7 +23,6 @@ set -e # Stop if a program does not return a zero
 WS_NAME="wotus"
 SOURCE_TYPE="GeoTIFF"
 STYLE='WotUS_Style'
-SOURCE="$WOTUS_DIR/$LAYER.gtiff"
 
 CURL="curl -u $GEOSERVER_USERNAME:$GEOSERVER_PASSWORD"
 PUT="$CURL -XPUT"
@@ -64,6 +63,7 @@ then
     echo "Invalid Number: $LAYER" >&2; exit 1
 fi
 
+SOURCE="$WOTUS_DIR/$LAYER.gtiff"
 if [ ! -f $SOURCE ]
 then
     echo "No such file: $SOURCE" >&2; exit 1

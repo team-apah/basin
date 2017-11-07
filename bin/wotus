@@ -33,7 +33,7 @@ echo " ========== Export to GEOTIFF"
 r.out.gdal\
     --overwrite\
     input=wotus_$1\
-    output=data/$1.gtiff
+    output="$WOTUS_DIR/$1.gtiff"
 
 # Clean Up
 date
