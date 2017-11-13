@@ -15,7 +15,7 @@ fi
 export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd $HOME
 
-# Set Up Environment
+# Make Sure Environment is Set up
 source grass_enviroment.sh
 
 # Create new raster with Wotus Value
@@ -38,6 +38,7 @@ r.out.gdal\
 # Clean Up
 date
 echo " ========== Clean Up Grass Enviroment"
+g.remove -f type=raster name=wotus_$1
 grass_cleanup
 
 date

@@ -15,8 +15,8 @@
 export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd $HOME
 
-# Set Up GRASS ENVIROMENT
-source cahokia_enviroment.sh
+# Set Up Environment If Not So Already
+[ -v CAHOKIA ] || source grass_enviroment.sh
 
 set -e # Stop if a program does not return a zero
 
@@ -24,7 +24,7 @@ WS_NAME="wotus"
 SOURCE_TYPE="GeoTIFF"
 STYLE='WotUS_Style'
 
-CURL="curl -u $GEOSERVER_USERNAME:$GEOSERVER_PASSWORD"
+CURL="curl -u $GS_USERNAME:$GS_PASSWORD"
 PUT="$CURL -XPUT"
 POST="$CURL -XPOST"
 DELETE="$CURL -XDELETE"

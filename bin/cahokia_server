@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Set parent of parent of this file as HOME and cd into it
+export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+cd $HOME
+
+# Set Up Environment If Not So Already
+[ -v CAHOKIA ] || source cahokia_enviroment.sh
+
+# Exit on Error
+set -e
+
+# Enable Logging if not dissabled, disable initializing logging again.
+if [ -v ENABLE_LOGGING -a ! -v DISABLE_LOGGING ]
+then
+    mkdir -p $LOGS_DIR
+    exec > >(tee -i $LOGS_DIR/'cahokia_server_'$(date +"%Y_%m_%d_%H_%M_%S")'.log')
+    exec 2>&1
+else
+    export DISABLE_LOGGING=true
+fi
+
+# Serve
+date
+echo " ========== SERVING  =========="
+
+for (( ; ; ))
+do
+    value="$(php php/get_next.php 2>/dev/null)"
+    if [ ! -z "$value" ]
+    then
+        date
+        echo " ==================== $value"
+        wotus "$value"
+        geoserver_script add "$value"
+        php php/pop.php
+        date
+        echo "DONE"
+    fi
+    sleep $QUEUE_WAIT
+done
+

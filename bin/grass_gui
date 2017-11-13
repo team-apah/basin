@@ -6,8 +6,8 @@
 export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd $HOME
 
-# Set Up GRASS ENVIROMENT
-source grass_enviroment.sh
+# Set Up Environment If Not So Already
+[ -v CAHOKIA ] || source grass_enviroment.sh
 
 # Run GRASS
 $GRASS_COMMAND -f -gui "$MAPSET_PATH"

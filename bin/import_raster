@@ -4,8 +4,8 @@
 export HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
 cd $HOME
 
-# Set Up Environment
-source grass_enviroment.sh
+# Set Up Environment If Not So Already
+[ -v CAHOKIA ] || source grass_enviroment.sh
 
 # Enable Log
 exec > >(tee -i $LOGS_DIR/$(date +"%Y_%m_%d_%H_%M_%S")'.log')

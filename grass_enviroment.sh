@@ -1,12 +1,23 @@
 # HOME must be set to the parent of the data directory before this starts
 
-source "$HOME/cahokia_enviroment.sh"
+[ -v CAHOKIA ] || source "$HOME/cahokia_enviroment.sh"
+
+# Cleanup ====================================================================
+function grass_cleanup {
+    sleep 1
+
+    # run GRASS' cleanup routine
+    $GISBASE/etc/clean_temp
+
+    # remove session tmp directory:
+    rm -rf /tmp/grass6-$USER-$GIS_LOCK
+}
+
+# Exit if GRASS is already setup
+[ -v GRASS_COMMAND ] && exit 0
 
 # Setup ======================================================================
-
 export GRASS_COMMAND='grass72'
-
-WOTUS_COLOR='255:102:255'
 
 export GISDBASE="$DATA_DIR/grassdata"
 export GISRC="$DATA_DIR/.grassrc"
@@ -74,17 +85,5 @@ then
     $GRASS_COMMAND -text -c "$MAPSET_PATH" -e
 fi
 
-# Cleanup ====================================================================
-function grass_cleanup {
-    sleep 1
-
-    # run GRASS' cleanup routine
-    $GISBASE/etc/clean_temp
-
-    # remove session tmp directory:
-    rm -rf /tmp/grass6-$USER-$GIS_LOCK
-}
-
 # Print Version
 g.version
-

@@ -1,0 +1,11 @@
+{
+    "BASE_URL": "cahokia",
+    "DB_NAME": "cahokia",
+    "GS_USERNAME": "admin",
+    "GS_PASSWORD": "geoserver",
+    "DB_USERNAME": "",
+    "DB_PASSWORD": "",
+    "LOCK_NAME": "cahokia",
+    "LOCK_TIMEOUT": 10,
+    "QUEUE_WAIT": 1
+}

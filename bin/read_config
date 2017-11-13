@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import sys
+import json
+
+enviroment = {}
+
+for path in sys.argv[1:]:
+    with open(path) as file:
+        enviroment.update(json.load(file))
+
+for k, v in enviroment.items():
+    print('export %s="%s"' % (k, v))

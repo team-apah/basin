@@ -1,8 +1,5 @@
+# Include commands
 export PATH="$HOME/bin:$PATH"
-
-# Geoserver Login
-export GEOSERVER_USERNAME="admin"
-export GEOSERVER_PASSWORD="geoserver"
 
 # Reference Coordinate System
 export GEO_REFERENCE='EPSG:4269' # aka NAD 83
@@ -16,9 +13,8 @@ mkdir -p $WOTUS_DIR
 export LOGS_DIR="$DATA_DIR/logs"
 mkdir -p $LOGS_DIR
 
-# Queue
-export COMPLETED="$DATA_DIR/completed"
-export QUEUE_FILE="$DATA_DIR/queue"
-export QUEUE_LOCK="$DATA_DIR/queue_lock"
-export MAX_WAIT_TIME=15
-export PROCESS_INTERVAL=1
+# Load Extra Configuration From File
+eval "$(read_config defaults.json $DATA_DIR/config.json)"
+
+# Mark as being the cahokia enviroment
+export CAHOKIA=true
