@@ -34,6 +34,11 @@ do
         wotus "$value"
         geoserver_script add "$value"
         php php/pop.php
+        while [[ "$(php php/cached.php 2>/dev/null)" > "$CACHE_LIMIT" ]]
+        do
+            value="$(php php/forfeit.php 2>/dev/null)"
+            geoserver_script remove "$value"
+        done
         date
         echo "DONE"
     fi

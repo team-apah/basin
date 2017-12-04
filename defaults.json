@@ -7,5 +7,6 @@
     "DB_PASSWORD": "",
     "LOCK_NAME": "cahokia",
     "LOCK_TIMEOUT": 10,
-    "QUEUE_WAIT": 1
+    "QUEUE_WAIT": 1,
+    "CACHE_LIMIT": 50
 }

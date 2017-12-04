@@ -104,8 +104,25 @@ bash -v -c "$PUT_XML --fail \
      $GS_URL/layers/$WS_NAME:$LAYER \
      "
 echo ''
+}
 
-echo $LAYER >> "$HOME/data/completed"
+function rm_q_value() {
+LAYER="$1"
+if ! [[ $LAYER =~ ^[0-9]+$ ]]
+then
+    echo "Invalid Number: $LAYER" >&2; exit 1
+fi
+
+SOURCE="$WOTUS_DIR/$LAYER.gtiff"
+
+# Remove Store
+bash -v -c "$DELETE_XML --fail \
+     $STORES_URL/$LAYER \
+     "
+echo ''
+
+rm -f $SOURCE
+
 }
 
 if [ "$1" = 'setup' ]
@@ -118,6 +135,9 @@ then
 elif [ "$1" = 'add' ]
 then
     add_q_value $2
+elif [ "$1" = 'remove' ]
+then
+    remove $2
 else
     echo "options are \"setup\", \"run\", and \"add QVALUE\"" >&2; exit 1
 fi

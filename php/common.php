@@ -31,7 +31,6 @@ function lock($kw, &$db) {
     $s->execute(array($kw['LOCK_NAME'], $kw['LOCK_TIMEOUT']));
     return (bool) $s->fetch()[0];
 }
-
 function unlock($kw, &$db) {
     $s = $db->prepare('SELECT RELEASE_LOCK(?);');
     $s->execute(array($kw['LOCK_NAME']));
@@ -43,6 +42,9 @@ function check_qvalue(&$db, $qvalue) {
     $s->execute(array($qvalue));
     $result = $s->fetch();
     if ($result) {
+        $s = $db->prepare('UPDATE Q_Values SET last_requested = NOW() WHERE id = ?;');
+        $s->setFetchMode(PDO::FETCH_NUM);
+        $s->execute(array($qvalue));
         return $result[0];
     }
     return false;
@@ -105,5 +107,32 @@ function place_of(&$db, $qvalue) {
     }
     return false;
 }
+
+function cached(&$db) {
+    $s = $db->prepare('SELECT count(id) FROM Q_Values WHERE status = "GENERATED";');
+    $s->setFetchMode(PDO::FETCH_NUM);
+    $s->execute();
+    return (int) $s->fetch()[0];
+}
+
+function oldest_request(&$db) {
+    $s = $db->prepare('SELECT id FROM Q_Values WHERE status = "GENERATED" ORDER BY last_requested;');
+    $s->setFetchMode(PDO::FETCH_NUM);
+    $s->execute();
+    $result = $s->fetch();
+    if ($result) {
+        return $result[0];
+    }
+    return false;
+}
+
+function forfeit(&$db, $q_value) {
+    $id = (int) $q_value;
+    $s = $db->prepare(
+        'UPDATE Q_Values SET status = "FORFEITED" WHERE id = ?;' .
+    );
+    $s->execute(array($id));
+}
+
 
 ?>
